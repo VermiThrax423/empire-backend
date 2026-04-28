@@ -63,3 +63,24 @@ class BuildQueue(Base):
 
     started_at = Column(TIMESTAMP, server_default=func.now())
     completes_at = Column(TIMESTAMP, nullable=False)
+
+
+class Army(Base):
+    __tablename__ = "army"
+
+    city_id = Column(UUID(as_uuid=True), ForeignKey("cities.id"), primary_key=True)
+    unit_type = Column(String, primary_key=True)
+    quantity = Column(Integer, default = 0)
+
+
+class TrainingQueue(Base):
+    __tablename__ = "training_queue"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    city_id = Column(UUID(as_uuid=True), ForeignKey("cities.id"))
+
+    unit_type = Column(String)
+    quantity = Column(Integer)
+
+    started_at = Column(TIMESTAMP, server_default=func.now())
+    completes_at = Column(TIMESTAMP)

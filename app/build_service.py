@@ -32,7 +32,7 @@ def get_cost(building_type, next_level):
     scaled_costs = {}
 
     for resource, amount in base.items():
-        scaled_costs[resource] = int(amount * (growth ** (next_level -1)))
+        scaled_costs[resource] = int(amount * (growth ** (next_level - 1)))
 
     return scaled_costs
 

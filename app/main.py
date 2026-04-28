@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from .database import SessionLocal
 from . import crud, schemas, models
 from .build_service import start_build, process_builds
+from .training_service import train_units, process_training
+
 
 app = FastAPI()
 
@@ -47,3 +49,11 @@ def build(city_id: str, building_type: str, db: Session = Depends(get_db)):
 @app.post("/process-builds/{city_id}")
 def process(city_id: str, db: Session = Depends(get_db)):
     return process_builds(db, city_id)
+
+@app.post("/train/{city_id}")
+def train(city_id: str, unit_type: str, quantity: int, db: Session = Depends(get_db)):
+    return train_units(db, city_id, unit_type, quantity)
+
+@app.post("/process-training/{city_id}")
+def process_training_api(city_id: str, db: Session = Depends(get_db)):
+    return process_training(db, city_id)
