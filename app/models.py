@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, BigInteger, TIMESTAMP
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Integer, ForeignKey, BigInteger, TIMESTAMP, JSON
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 import uuid
 from .database import Base
@@ -84,3 +84,20 @@ class TrainingQueue(Base):
 
     started_at = Column(TIMESTAMP, server_default=func.now())
     completes_at = Column(TIMESTAMP)
+
+
+class Attack(Base):
+    __tablename__ = "attacks"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    attacker_city_id = Column(UUID(as_uuid=True), ForeignKey("cities.id"))
+    defender_city_id = Column(UUID(as_uuid=True), ForeignKey("cities.id"))
+
+    units = Column(JSONB)
+
+    departure_time = Column(TIMESTAMP, server_default=func.now())
+    arrival_time = Column(TIMESTAMP)
+    return_time = Column(TIMESTAMP)
+
+    status = Column(String, default="traveling")

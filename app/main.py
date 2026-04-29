@@ -4,6 +4,7 @@ from .database import SessionLocal
 from . import crud, schemas, models
 from .build_service import start_build, process_builds
 from .training_service import train_units, process_training
+from .attack_service import send_attack, process_attacks
 
 
 app = FastAPI()
@@ -57,3 +58,11 @@ def train(city_id: str, unit_type: str, quantity: int, db: Session = Depends(get
 @app.post("/process-training/{city_id}")
 def process_training_api(city_id: str, db: Session = Depends(get_db)):
     return process_training(db, city_id)
+
+@app.post("/attack")
+def attack(attacker_city_id: str, defender_city_id: str, units: dict, db: Session = Depends(get_db)):
+    return send_attack(db, attacker_city_id, defender_city_id, units)
+
+@app.post("/process-attacks")
+def process(db: Session = Depends(get_db)):
+    return process_attacks(db)
