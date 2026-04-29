@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from .military_config import MILITARY
 from . import models
-
+from . import build_service
 
 def get_slowest_speed(units, military_config):
     speeds = []
@@ -64,9 +64,10 @@ def calculate_power(units, stat):
         total += qty * MILITARY[unit_type][stat]
     return total
 
-def resolve_combat(attacker_units, defender_units):
+def resolve_combat(attacker_units, defender_units, defense_bonus=0):
     attack_power = calculate_power(attacker_units, "attack")
     defense_power = calculate_power(defender_units, "defense")
+    defense_power *= (1 + defense_bonus)
 
     total = attack_power + defense_power
 
@@ -124,9 +125,12 @@ def process_attacks(db):
 
         attacker_units = attack.units
 
+        defense_bonus = build_service.get_defense_bonus(db, attack.defender_city_id)
+
         new_attacker, new_defender, attacker_losses, defender_losses, winner = resolve_combat(
             attacker_units,
-            defender_units
+            defender_units,
+            defense_bonus
         )
 
         report = models.BattleReport(

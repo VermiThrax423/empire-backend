@@ -124,3 +124,22 @@ def process_builds(db: Session, city_id):
     db.commit()
 
     return {"processed": len(queue_items)}
+
+
+def get_defense_bonus(db, city_id):
+    buildings = db.query(models.Building).filter_by(city_id=city_id).all()
+
+    total_bonus = 0
+
+    for b in buildings:
+        config = BUILDINGS.get(b.type)
+
+        if not config:
+            continue
+
+        effects = config.get("effects", {})
+
+        if "defense_bonus" in effects:
+            total_bonus += effects["defense_bonus"] * b.level
+
+    return total_bonus

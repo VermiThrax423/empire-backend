@@ -83,7 +83,10 @@ BUILDINGS = {
         "effects": {"defense_bonus": 0.1},
         "base_cost": {"money": 250, "oil": 100, "tech": 75},
         "growth_cost": 1.9,
-        "base_time": 60
+        "base_time": 60,
+        "effects": {
+            "defense_bonus": 0.1
+        }
     },
 
     "houses": {
