@@ -66,3 +66,11 @@ def attack(attacker_city_id: str, defender_city_id: str, units: dict, db: Sessio
 @app.post("/process-attacks")
 def process(db: Session = Depends(get_db)):
     return process_attacks(db)
+
+@app.get("/battle-reports/{city_id}")
+def get_reports(city_id: str, db: Session = Depends(get_db)):
+    reports = db.query(models.BattleReport).filter(
+        (models.BattleReport.attacker_city_id == city_id) | (models.BattleReport.defender_city_id == city_id)
+    ).order_by(models.BattleReport.created_at.desc()).all()
+
+    return reports

@@ -71,19 +71,37 @@ def resolve_combat(attacker_units, defender_units):
     total = attack_power + defense_power
 
     if total == 0:
-        return attacker_units, defender_units
+        return attacker_units, defender_units, {}, {}, "draw"
     
     attacker_loss_ratio = defense_power / total
     defender_loss_ratio = attack_power / total
 
-    # Apply losses
-    for unit in attacker_units:
-        attacker_units[unit] = int(attacker_units[unit] * (1 - attacker_loss_ratio))
+    new_attacker = {}
+    new_defender = {}
 
-    for unit in defender_units:
-        defender_units[unit] = int(defender_units[unit] * (1 - defender_loss_ratio))
+    attacker_losses = {}
+    defender_losses = {}
 
-    return attacker_units, defender_units
+    for unit, qty in attacker_units.items():
+        remaining = int(qty * (1 - attacker_loss_ratio))
+        new_attacker[unit] = remaining
+        attacker_losses[unit] = qty - remaining
+
+    for unit, qty in defender_units.items():
+        remaining = int(qty * (1 - defender_loss_ratio))
+        new_defender[unit] = remaining
+        defender_losses[unit] = qty - remaining
+
+    # Determine winner
+    if sum(new_attacker.values()) > sum(new_defender.values()):
+        winner = "attacker"
+    elif sum(new_defender.values()) > sum(new_attacker.values()):
+        winner = "defender"
+    else:
+        winner = "draw"
+
+    return new_attacker, new_defender, attacker_losses, defender_losses, winner
+
 
 def process_attacks(db):
 
@@ -106,10 +124,25 @@ def process_attacks(db):
 
         attacker_units = attack.units
 
-        new_attacker, new_defender = resolve_combat(
+        new_attacker, new_defender, attacker_losses, defender_losses, winner = resolve_combat(
             attacker_units,
             defender_units
         )
+
+        report = models.BattleReport(
+            attacker_city_id=attack.attacker_city_id,
+            defender_city_id=attack.defender_city_id,
+
+            attacker_units=attacker_units,
+            defender_units=defender_units,
+
+            attacker_losses=attacker_losses,
+            defender_losses=defender_losses,
+
+            winner=winner
+        )
+
+        db.add(report)
 
         # Update defender army
         for unit_type, qty in new_defender.items():

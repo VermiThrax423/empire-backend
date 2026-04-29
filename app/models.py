@@ -101,3 +101,23 @@ class Attack(Base):
     return_time = Column(TIMESTAMP)
 
     status = Column(String, default="traveling")
+
+
+class BattleReport(Base):
+    __tablename__ = "battle_reports"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    attacker_city_id = Column(UUID(as_uuid=True))
+    defender_city_id = Column(UUID(as_uuid=True))
+
+    attacker_units = Column(JSONB)
+    defender_units = Column(JSONB)
+
+    attacker_losses = Column(JSONB)
+    defender_losses = Column(JSONB)
+
+    winner = Column(String)
+
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    
