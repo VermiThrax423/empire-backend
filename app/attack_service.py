@@ -3,6 +3,10 @@ from .military_config import MILITARY
 from . import models
 from . import build_service
 
+
+BASE_LOOT_PERCENT = 0.25
+LOOTABLE_RESOURCES = ["money", "food", "oil", "tech"]
+
 def get_slowest_speed(units, military_config):
     speeds = []
     for unit_type, qty in units.items():
@@ -101,7 +105,9 @@ def resolve_combat(attacker_units, defender_units, defense_bonus=0):
     else:
         winner = "draw"
 
-    return new_attacker, new_defender, attacker_losses, defender_losses, winner
+    win_ratio = attack_power / (attack_power + defense_power)
+
+    return new_attacker, new_defender, attacker_losses, defender_losses, winner, win_ratio
 
 
 def process_attacks(db):
@@ -127,11 +133,28 @@ def process_attacks(db):
 
         defense_bonus = build_service.get_defense_bonus(db, attack.defender_city_id)
 
-        new_attacker, new_defender, attacker_losses, defender_losses, winner = resolve_combat(
+        new_attacker, new_defender, attacker_losses, defender_losses, winner, win_ratio = resolve_combat(
             attacker_units,
             defender_units,
             defense_bonus
         )
+
+        if winner == "attacker":
+            if sum(defender_units.values()) == 0:
+                attack.loot = {}
+            else:
+                loot = calculate_loot(db, attack.defender_city_id, win_ratio)
+
+                attack.loot = loot
+        else:
+            attack.loot = {}
+
+        resource = db.query(models.Resource).filter_by(
+            city_id=attack.attacker_city_id
+        ).first()
+
+        for res, amount in attack.loot.items():
+            setattr(resource, res, getattr(resource, res) + amount)
 
         report = models.BattleReport(
             attacker_city_id=attack.attacker_city_id,
@@ -143,7 +166,9 @@ def process_attacks(db):
             attacker_losses=attacker_losses,
             defender_losses=defender_losses,
 
-            winner=winner
+            winner=winner,
+
+            loot=attack.loot
         )
 
         db.add(report)
@@ -201,3 +226,23 @@ def process_attacks(db):
         "arrivals_processed": len(arrivals),
         "returns_processed": len(returns)
     }
+
+
+def calculate_loot(db, defender_city_id, win_ratio):
+    resource = db.query(models.Resource).filter_by(
+        city_id=defender_city_id
+    ).first()
+
+    loot = {}
+
+    for res in LOOTABLE_RESOURCES:
+
+        amount = getattr(resource, res)
+
+        stolen = int(amount * BASE_LOOT_PERCENT * win_ratio)
+
+        loot[res] = stolen
+
+        setattr(resource, res, amount - stolen)
+
+    return loot

@@ -96,6 +96,8 @@ class Attack(Base):
 
     units = Column(JSONB)
 
+    loot = Column(JSONB)
+
     departure_time = Column(TIMESTAMP, server_default=func.now())
     arrival_time = Column(TIMESTAMP)
     return_time = Column(TIMESTAMP)
@@ -118,6 +120,8 @@ class BattleReport(Base):
     defender_losses = Column(JSONB)
 
     winner = Column(String)
+
+    loot = Column(JSONB)
 
     created_at = Column(TIMESTAMP, server_default=func.now())
     
