@@ -1,13 +1,20 @@
-export default function ResourcePanel({ city }) {
+export default function ResourcePanel() {
   return (
-    <div>
-      <h3>Resources</h3>
-      <ul>
-        <li>Money: {city.money}</li>
-        <li>Oil: {city.oil}</li>
-        <li>Tech: {city.tech}</li>
-        <li>Food: {city.food}</li>
-      </ul>
+    <div
+      style={{
+        display: "flex",
+        gap: "20px",
+        backgroundColor: "#111",
+        color: "white",
+        padding: "15px",
+        borderBottom: "2px solid #444",
+        marginBottom: "20px"
+      }}
+    >
+      <div>💰 Gold: 1000</div>
+      <div>🌲 Wood: 500</div>
+      <div>🪨 Stone: 300</div>
+      <div>🌾 Food: 800</div>
     </div>
   );
 }

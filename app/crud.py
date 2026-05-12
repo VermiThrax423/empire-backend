@@ -173,3 +173,8 @@ def process_builds(db: Session, city_id: str):
     db.commit()
 
     return {"message": f"Processed {len(queue_items)} builds"}
+
+def get_buildings(db: Session, city_id: str):
+    return db.query(models.Building).filter(
+        models.Building.city_id == city_id
+    ).all()
