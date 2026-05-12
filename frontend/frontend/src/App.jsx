@@ -1,15 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import client from './api/client'
+import CityDashboard from "./pages/CityDashboard";
 
 function App() {
-  return (
-    <div>
-      <h1>Game Frontend Online</h1>
-    </div>
-  );
+  return <CityDashboard />;
 }
+
 
 export default App;

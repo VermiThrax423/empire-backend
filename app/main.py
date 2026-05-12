@@ -5,9 +5,21 @@ from . import crud, schemas, models
 from .build_service import start_build, process_builds
 from .training_service import train_units, process_training
 from .attack_service import send_attack, process_attacks
+from fastapi.middleware.cors import CORSMiddleware
 
+app = FastAPI(redirect_slashes=False)
 
-app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://expert-carnival-574x6rrr6pqf7gj7-8000.app.github.dev",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def get_db():
