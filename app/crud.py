@@ -178,3 +178,8 @@ def get_buildings(db: Session, city_id: str):
     return db.query(models.Building).filter(
         models.Building.city_id == city_id
     ).all()
+
+def get_build_queue(db: Session, city_id: str):
+    return db.query(models.BuildQueue).filter(
+        models.BuildQueue.city_id == city_id
+    ).all()

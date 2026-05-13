@@ -5,25 +5,41 @@ import BuildingPanel from "./BuildingPanel";
 export default function CityCard({ city }) {
     const [buildings, setBuildings] = useState([]);
     const [loading, setLoading] = useState(true);
-    
-    async function fetchBuildings() {
-        try {
-            setLoading(true);
+    const [buildQueue, setBuildQueue] = useState([]);
 
+    async function fetchBuildings(showLoading = false) {
+      
+      try {
+            if (showLoading) {
+              setLoading(true);
+            }
+            
             const res = await client.get(`/buildings/${city.id}`);
-
             console.log("Buildings loaded:", res.data);
-
             setBuildings(res.data);
+
+            const queueRes = await client.get(
+              `/build-queue/${city.id}`
+            );
+
+            setBuildQueue(queueRes.data);
         } catch (err) {
             console.error("Failed to load buildings:", err);
         } finally {
-            setLoading(false);
+            if (showLoading) {
+              setLoading(false);
+            }
         }
     }
 
     useEffect(() => {
-        fetchBuildings();
+        fetchBuildings(true);
+
+        const interval = setInterval(() => {
+          fetchBuildings();
+        }, 5000);
+
+        return () => clearInterval(interval);
     }, [city.id]);    
     
     async function upgradeBuilding(building) {
@@ -67,6 +83,7 @@ export default function CityCard({ city }) {
       ) : (
         <BuildingPanel 
             buildings={buildings}
+            buildQueue={buildQueue}
             onUpgrade={upgradeBuilding}
         />
       )}

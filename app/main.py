@@ -67,6 +67,13 @@ def process(city_id: str, db: Session = Depends(get_db)):
 def get_buildings(city_id: str, db: Session = Depends(get_db)):
     return crud.get_buildings(db, city_id)
 
+@app.get("/build-queue/{city_id}")
+def get_build_queue(city_id: str, db: Session = Depends(get_db)):
+
+    process_builds(db, city_id)
+
+    return crud.get_build_queue(db, city_id)
+
 @app.post("/train/{city_id}")
 def train(city_id: str, unit_type: str, quantity: int, db: Session = Depends(get_db)):
     return train_units(db, city_id, unit_type, quantity)

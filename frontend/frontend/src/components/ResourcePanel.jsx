@@ -1,4 +1,9 @@
-export default function ResourcePanel() {
+export default function ResourcePanel({ resources }) {
+  
+  if (!resources) {
+    return <div>Loading resources...</div>;
+  }
+  
   return (
     <div
       style={{
@@ -11,10 +16,10 @@ export default function ResourcePanel() {
         marginBottom: "20px"
       }}
     >
-      <div>💰 Gold: 1000</div>
-      <div>🌲 Wood: 500</div>
-      <div>🪨 Stone: 300</div>
-      <div>🌾 Food: 800</div>
+      <div>💰 {Math.floor(resources.money)}</div>
+      <div>🌾 {Math.floor(resources.food)}</div>
+      <div>🛢 {Math.floor(resources.oil)}</div>
+      <div>🔬 {Math.floor(resources.tech)}</div>
     </div>
   );
 }
