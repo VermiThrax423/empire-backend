@@ -1,9 +1,25 @@
 import client from "../api/client";
 import { useEffect, useState } from "react";
+import BuildingCard from "./BuildingCard";
 
-export default function BuildingPanel({ buildings = [], buildQueue = [], onUpgrade }) {
+export default function BuildingPanel({ buildings = [], buildingConfig, buildQueue = [], onUpgrade }) {
   const [now, setNow] = useState(Date.now());
 
+  const mergedBuildings = buildingConfig
+    ? Object.keys(buildingConfig).map(type => {
+
+        const existing = buildings.find(
+          b => b.type === type
+        );
+
+        return {
+          type,
+          level: existing ? existing.level : 0,
+          config: buildingConfig[type]
+        };
+      })
+    : [];
+  
   useEffect(() => {
 
     const interval = setInterval(() => {
@@ -25,6 +41,7 @@ export default function BuildingPanel({ buildings = [], buildQueue = [], onUpgra
         console.log("Upgrade response:", res.data);
 
     } catch (err) {
+        console.log(building);
         console.error("Upgrade failed:", err);
     }
   }
@@ -42,6 +59,8 @@ export default function BuildingPanel({ buildings = [], buildQueue = [], onUpgra
     return Math.ceil(diff / 1000);
   }
 
+  
+
   return (
     <div
       style={{
@@ -52,7 +71,7 @@ export default function BuildingPanel({ buildings = [], buildQueue = [], onUpgra
     >
       <h3>Buildings</h3>
 
-      {buildings.map((building) => {
+      {mergedBuildings.map((building) => {
 
         const activeUpgrade = buildQueue.find(
           queueItem =>
@@ -64,39 +83,19 @@ export default function BuildingPanel({ buildings = [], buildQueue = [], onUpgra
           : null;
 
         return (
-          <div
-            key={building.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "10px"
-            }}
-          >
-            <div>
-              <div>
-                {building.type} — Level {building.level}
-              </div>
+          <BuildingCard
+            key={building.type}
 
-              {remaining > 0 && (
-                <div style={{ color: "orange" }}>
-                  Upgrading to Level {activeUpgrade.target_level}
+            building={building}
 
-                  ({remaining}s remaining)
-                </div>
-              )}
-            </div>
+            activeUpgrade={activeUpgrade}
 
-            <button
-              disabled={remaining > 0}
-              onClick={() => onUpgrade(building)}
-            >
-              {remaining > 0
-                ? "Upgrading..."
-                : "Upgrade"}
-            </button>
-          </div>
+            remaining={remaining}
+
+            onUpgrade={onUpgrade}
+          />
         );
-      })}
+      })}                                 
     </div>
   );
 }

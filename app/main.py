@@ -6,6 +6,8 @@ from .build_service import start_build, process_builds
 from .training_service import train_units, process_training
 from .attack_service import send_attack, process_attacks
 from fastapi.middleware.cors import CORSMiddleware
+from .building_config import BUILDINGS
+
 
 app = FastAPI(redirect_slashes=False)
 
@@ -43,6 +45,10 @@ def create_player(data: schemas.PlayerCreate, db: Session = Depends(get_db)):
         "player_id": str(player.id),
         "nation_id": str(nation.id)
     }
+
+@app.get("/building-config")
+def get_building_config():
+    return BUILDINGS
 
 
 @app.get("/cities/{nation_id}")

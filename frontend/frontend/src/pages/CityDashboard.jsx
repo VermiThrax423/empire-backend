@@ -9,6 +9,7 @@ function App() {
   const [cities, setCities] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
   const [resources, setResources] = useState(null);
+  const [prevResources, setPrevResources] = useState(null);
 
   useEffect(() => {
     client.get(`/cities/${CURRENT_NATION_ID}`)
@@ -42,10 +43,22 @@ function App() {
         `/resources/${selectedCity.id}`
       );
 
-      setResources(resourceRes.data);
+      const newResources = resourceRes.data;
+
+      setPrevResources(resources);
+      setResources(newResources);
     } catch (err) {
       console.error(err);
     }
+  }
+
+  function getPerHour(current, previous) {
+    if (!current || !previous) return 0;
+
+    const diff = current - previous;
+
+    // 5 seconds polling -> convert to hourly rate
+    return diff * 720
   }
 
   return (
@@ -59,7 +72,10 @@ function App() {
           borderRadius: "8px"
         }}
     >
-      <ResourcePanel resources={resources} />
+      <ResourcePanel 
+        resources={resources}
+        prevResources={prevResources} 
+      />
 
       <h1>City Test</h1>
 

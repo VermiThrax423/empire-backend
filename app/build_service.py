@@ -6,11 +6,15 @@ from .building_config import BUILDINGS
 
 
 def get_building_level(db: Session, city_id, building_type):
-    b = db.query(models.Building).filter_by(
+    building = db.query(models.Building).filter_by(
         city_id=city_id,
         type=building_type
     ).first()
-    return b.level if b else 0
+    
+    if not building:
+        return 0
+    
+    return building.level
 
 
 def check_limit(db: Session, city_id, building_type):

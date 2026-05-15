@@ -6,6 +6,28 @@ export default function CityCard({ city }) {
     const [buildings, setBuildings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [buildQueue, setBuildQueue] = useState([]);
+    const [buildingConfig, setBuildingConfig] = useState({});
+    
+    const mergedBuildings = Object.keys(buildingConfig).map(type => {
+
+      const existing = buildings.find(
+        b => b.type === type
+      );
+
+      return {
+        type,
+        level: existing ? existing.level : 0,
+        config: buildingConfig[type]
+      };
+    });
+
+    useEffect(() => {
+      client.get("/building-config")
+        .then(res => {
+          setBuildingConfig(res.data);
+        })
+        .catch(err => console.error(err));
+    }, []);
 
     async function fetchBuildings(showLoading = false) {
       
@@ -44,15 +66,18 @@ export default function CityCard({ city }) {
     
     async function upgradeBuilding(building) {
         try {
+            console.log("CITY:", city);
+            console.log("BUILDING:", building);
             console.log("Upgrading:", building.type);
 
-            await client.post(`/build/${building.city_id}`, null, {
+            await client.post(`/build/${city.id}`, null, {
                 params: {
                     building_type: building.type,
                 },
             });
 
             await fetchBuildings();
+            
         } catch (err) {
             console.error("Upgrade failed:", err);
         }
@@ -83,6 +108,7 @@ export default function CityCard({ city }) {
       ) : (
         <BuildingPanel 
             buildings={buildings}
+            buildingConfig={buildingConfig}
             buildQueue={buildQueue}
             onUpgrade={upgradeBuilding}
         />

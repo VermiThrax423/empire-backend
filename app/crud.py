@@ -5,6 +5,7 @@ This is the game logic layer (database operations)
 from sqlalchemy.orm import Session
 from . import models
 from datetime import datetime, timedelta
+from .building_config import BUILDINGS
 
 def create_player(db: Session, email: str):
     player = models.Player(email=email)
@@ -39,6 +40,19 @@ def create_nation_with_city(db: Session, player_id, nation_name):
     )
     db.add(resources)
     db.commit()
+
+    for building_type, config in BUILDINGS.items():
+        starting_level = config.get("starting_level", 0)
+
+        if starting_level > 0:
+            building = models.Building(
+                city_id=city.id,
+                type=building_type,
+                level=starting_level
+            )
+
+            db.add(building)
+            db.commit()
 
     return nation
 
@@ -87,11 +101,21 @@ def get_resources(db, city_id):
     db.commit()
     db.refresh(resource)
 
+    money_per_hour = int(money_rate * 3600)
+    food_per_hour = int(food_rate * 3600)
+    oil_per_hour = int(oil_rate * 3600)
+    tech_per_hour = int(tech_rate * 3600)
+
     return {
         "money": resource.money,
         "food": resource.food,
         "oil": resource.oil,
-        "tech": resource.tech
+        "tech": resource.tech,
+
+        "money_per_hour": money_per_hour,
+        "food_per_hour": food_per_hour,
+        "oil_per_hour": oil_per_hour,
+        "tech_per_hour": tech_per_hour
     }
 
 
