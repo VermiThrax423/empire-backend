@@ -24,11 +24,23 @@ export default function BuildingPanel({ buildings = [], buildingConfig, buildQue
 
     const interval = setInterval(() => {
       setNow(Date.now());
+
+      const finishedBuild = buildQueue.some(queueItem =>
+        getRemainingSeconds(
+          queueItem.completes_at
+        ) <= 0
+      );
+
+      if (finishedBuild) {
+        fetchBuildings();
+        fetchBuildQueue();
+      }
+
     }, 1000);
 
     return () => clearInterval(interval);
 
-  }, []);
+  }, [buildQueue]);
 
   async function upgradeBuilding(building) {
     try {
@@ -47,16 +59,13 @@ export default function BuildingPanel({ buildings = [], buildingConfig, buildQue
   }
 
   function getRemainingSeconds(completesAt) {
+    const completeTime = new Date(completesAt + "Z");
 
-    const diff =
-      new Date(completesAt).getTime()
-      - now;
+    const diff = completeTime.getTime() - now;
 
-    if (diff <= 0) {
-      return 0;
-    }
-
-    return Math.ceil(diff / 1000);
+    return Math.max(
+      0, Math.floor(diff / 1000)
+    );
   }
 
   
@@ -85,13 +94,9 @@ export default function BuildingPanel({ buildings = [], buildingConfig, buildQue
         return (
           <BuildingCard
             key={building.type}
-
             building={building}
-
             activeUpgrade={activeUpgrade}
-
             remaining={remaining}
-
             onUpgrade={onUpgrade}
           />
         );

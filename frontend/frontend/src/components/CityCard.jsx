@@ -111,6 +111,7 @@ export default function CityCard({ city }) {
             buildingConfig={buildingConfig}
             buildQueue={buildQueue}
             onUpgrade={upgradeBuilding}
+            
         />
       )}
 
