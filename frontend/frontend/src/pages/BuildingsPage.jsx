@@ -4,17 +4,12 @@ import client from "../api/client";
 import CityCard from "../components/CityCard";
 import ResourcePanel from "../components/ResourcePanel";
 
-export default function BuildingsPage() {
+export default function BuildingsPage({selectedCity, setSelectedCity}) {
 
   const CURRENT_NATION_ID =
     "37c939eb-8f0d-4d8f-b449-0fcb4cd0833e";
 
   const [cities, setCities] = useState([]);
-  const [selectedCity, setSelectedCity] =
-    useState(null);
-
-  const [resources, setResources] =
-    useState(null);
 
   // LOAD CITIES
   useEffect(() => {
@@ -35,46 +30,11 @@ export default function BuildingsPage() {
 
   }, []);
 
-  // LOAD RESOURCES
-  useEffect(() => {
-
-    if (!selectedCity) return;
-
-    fetchResources();
-
-    const interval = setInterval(() => {
-      fetchResources();
-    }, 5000);
-
-    return () => clearInterval(interval);
-
-  }, [selectedCity]);
-
-  async function fetchResources() {
-
-    try {
-
-      const res = await client.get(
-        `/resources/${selectedCity.id}`
-      );
-
-      setResources(res.data);
-
-    } catch (err) {
-
-      console.error(err);
-
-    }
-  }
 
   return (
     <div>
 
       <h1>Buildings</h1>
-
-      <ResourcePanel
-        resources={resources}
-      />
 
       {/* City Selector */}
       <div
